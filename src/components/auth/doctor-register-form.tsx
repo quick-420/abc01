@@ -38,7 +38,7 @@ const doctorRegisterFormSchema = z.object({
 type DoctorRegisterFormValues = z.infer<typeof doctorRegisterFormSchema>;
 
 const specializations = [
-  "Cardiology", "Dermatology", "Pediatrics", "Neurology", "Oncology", "General Medicine"
+  "Cardiology", "Dermatology", "Pediatrics", "Neurology", "Oncology", "General Medicine", "Dentist", "Physiotherapist", "Homeopathic Doctor", "Ayurvedic Doctor"
 ];
 
 export function DoctorRegisterForm() {
@@ -63,6 +63,7 @@ export function DoctorRegisterForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
+      // Store doctor-specific details
       await setDoc(doc(db, "doctors", user.uid), {
         uid: user.uid,
         email: data.email,
@@ -70,17 +71,16 @@ export function DoctorRegisterForm() {
         specialization: data.specialization,
         licenseNumber: data.licenseNumber,
         profileBio: data.profileBio || "",
-        role: "doctor", // Add role
+        role: "doctor",
       });
       
-      // Optionally, you can also store a general user record
+      // Store general user info for lookups (e.g., display name, role for chat)
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: data.email,
-        displayName: data.fullName,
-        role: "doctor",
+        displayName: data.fullName, // Crucial for chat
+        role: "doctor", // Crucial for role-based access and chat
       });
-
 
       toast({
         title: "Registration Successful",

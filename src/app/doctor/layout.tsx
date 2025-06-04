@@ -3,18 +3,19 @@
 
 import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc, type DocumentData } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger, SidebarFooter } from '@/components/ui/sidebar';
 import { AppLogo } from '@/components/layout/app-logo';
 import { UserNav } from '@/components/layout/user-nav';
-import { LayoutDashboard, UserCog, Users, CalendarDays, Settings, Loader2 } from 'lucide-react';
+import { LayoutDashboard, UserCog, Users, CalendarDays, MessageSquare, Settings, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DoctorLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [doctorData, setDoctorData] = useState<DocumentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,20 +25,26 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
       if (userAuth) {
         setCurrentUser(userAuth);
         try {
-          const doctorDocRef = doc(db, "doctors", userAuth.uid);
-          const doctorDocSnap = await getDoc(doctorDocRef);
-          if (doctorDocSnap.exists()) {
-            setDoctorData(doctorDocSnap.data());
+          const userDocRef = doc(db, "users", userAuth.uid); // Check general user role first
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists() && userDocSnap.data()?.role === 'doctor') {
+            const doctorDocRef = doc(db, "doctors", userAuth.uid);
+            const doctorDocSnap = await getDoc(doctorDocRef);
+            if (doctorDocSnap.exists()) {
+              setDoctorData(doctorDocSnap.data());
+            } else {
+              console.warn("Doctor document not found for UID:", userAuth.uid);
+              // router.push('/auth/doctor-login'); return;
+            }
           } else {
-            // Handle case where doctor document might not exist or role is incorrect
-            console.warn("Doctor document not found for UID:", userAuth.uid);
-            // Potentially redirect if role mismatch is critical
-            // router.push('/auth/doctor-login'); 
-            // return;
+             // Role mismatch or user doc doesn't exist
+            console.warn("User is not a doctor or user document missing:", userAuth.uid);
+            router.push('/auth/doctor-login'); return;
           }
         } catch (error) {
           console.error("Error fetching doctor data:", error);
-          // Handle error, maybe redirect or show error message
+          router.push('/auth/doctor-login'); return;
         }
         setIsLoading(false);
       } else {
@@ -60,39 +67,44 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
   }
 
   if (!currentUser) {
-    // This case should be handled by the redirect in useEffect,
-    // but as a fallback, we can return null or a redirecting message.
     return null; 
   }
 
   const doctorName = doctorData?.fullName || currentUser.email || "Doctor";
   const doctorEmail = currentUser.email || "doctor@example.com";
 
+  const isChatPage = pathname.startsWith('/chat');
+
   return (
-    <SidebarProvider defaultOpen={true}>
-      <Sidebar side="left" variant="sidebar" collapsible="icon">
+    <SidebarProvider defaultOpen={!isChatPage}>
+      <Sidebar side="left" variant="sidebar" collapsible="icon" className={isChatPage ? "md:hidden" : ""}>
         <SidebarHeader className="p-4 items-start">
           <AppLogo />
         </SidebarHeader>
         <SidebarContent className="p-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Dashboard" isActive={true}>
+              <SidebarMenuButton asChild tooltip="Dashboard" isActive={pathname === "/doctor/dashboard"}>
                 <Link href="/doctor/dashboard"><LayoutDashboard /><span>Dashboard</span></Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Appointments">
+              <SidebarMenuButton asChild tooltip="Appointments" isActive={pathname.includes("#appointments")}>
                 <Link href="/doctor/dashboard#appointments"><CalendarDays /><span>Appointments</span></Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Patients">
+              <SidebarMenuButton asChild tooltip="Messages" isActive={pathname.startsWith("/chat")}>
+                <Link href="/chat"><MessageSquare /><span>Messages</span></Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Patients" isActive={pathname.includes("#patients")}>
                  <Link href="/doctor/dashboard#patients"><Users /><span>Patients</span></Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Profile">
+              <SidebarMenuButton asChild tooltip="Profile" isActive={pathname === "/doctor/profile"}>
                 <Link href="/doctor/profile"><UserCog /><span>Profile</span></Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -102,14 +114,15 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
           <UserNav userType="doctor" userName={doctorName} userEmail={doctorEmail} />
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="flex flex-col">
+      <SidebarInset className={`flex flex-col ${isChatPage ? "ml-0 peer-data-[variant=inset]:md:ml-0" : ""}`}>
+        {!isChatPage && (
          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:justify-end">
-            <SidebarTrigger className="md:hidden" /> {/* Only show on mobile */}
+            <SidebarTrigger className="md:hidden" /> 
             <div className="hidden md:block">
-              {/* Placeholder for any header content on desktop if UserNav is in sidebar footer */}
             </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-6">
+        )}
+        <main className={`flex-1 overflow-y-auto ${isChatPage ? "" : "p-6"}`}>
           {children}
         </main>
       </SidebarInset>

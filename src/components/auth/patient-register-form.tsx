@@ -60,21 +60,22 @@ export function PatientRegisterForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
+      // Store patient-specific details
       await setDoc(doc(db, "patients", user.uid), {
         uid: user.uid,
         email: data.email,
         fullName: data.fullName,
-        dateOfBirth: Timestamp.fromDate(data.dateOfBirth), // Store as Firestore Timestamp
+        dateOfBirth: Timestamp.fromDate(data.dateOfBirth),
         medicalHistory: data.medicalHistory || "",
-        role: "patient", // Add role
+        role: "patient", 
       });
       
-      // Optionally, you can also store a general user record
+      // Store general user info for lookups (e.g., display name, role for chat)
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: data.email,
-        displayName: data.fullName,
-        role: "patient",
+        displayName: data.fullName, // Crucial for chat
+        role: "patient", // Crucial for role-based access and chat
       });
 
       toast({

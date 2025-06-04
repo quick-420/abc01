@@ -3,7 +3,8 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { getAnalytics, Analytics } from "firebase/analytics"; // Optional: if you need Analytics
+import { getDatabase, Database } from 'firebase/database'; // Added
+// import { getAnalytics, Analytics } from "firebase/analytics"; // Optional: if you need Analytics
 
 const firebaseConfig = {
   apiKey: "AIzaSyCEtciXLXGNf2Il037w_d_TlQUbF0VL01U",
@@ -12,13 +13,15 @@ const firebaseConfig = {
   storageBucket: "hygienea-7ae6f.firebasestorage.app",
   messagingSenderId: "681110615190",
   appId: "1:681110615190:web:e4c36b8c67c0907577beb7",
-  measurementId: "G-QZXFKJK0H5"
-}
+  measurementId: "G-QZXFKJK0H5",
+  databaseURL: "https://hygienea-7ae6f-default-rtdb.firebaseio.com/" // Added Realtime Database URL
+};
 
 let app: FirebaseApp;
-let auth: Auth;
+let authInstance: Auth; // Renamed to avoid conflict
 let db: Firestore;
 let storage: FirebaseStorage;
+let rtdb: Database; // Added
 // let analytics: Analytics; // Optional
 
 if (getApps().length === 0) {
@@ -28,8 +31,10 @@ if (getApps().length === 0) {
   app = getApps()[0];
 }
 
-auth = getAuth(app);
+authInstance = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
+rtdb = getDatabase(app); // Initialize RTDB
 
-export { app, auth, db, storage, firebaseConfig };
+// Export auth as authInstance to avoid naming collision if 'auth' is used locally
+export { app, authInstance as auth, db, storage, rtdb, firebaseConfig };
