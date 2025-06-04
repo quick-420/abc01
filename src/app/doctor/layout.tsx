@@ -1,13 +1,72 @@
+
+"use client";
+
 import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { doc, getDoc, type DocumentData } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger, SidebarFooter } from '@/components/ui/sidebar';
 import { AppLogo } from '@/components/layout/app-logo';
 import { UserNav } from '@/components/layout/user-nav';
-import { LayoutDashboard, UserCog, Users, CalendarDays, Settings } from 'lucide-react';
+import { LayoutDashboard, UserCog, Users, CalendarDays, Settings, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DoctorLayout({ children }: { children: ReactNode }) {
-  const doctorName = "Dr. Emily Carter"; // Placeholder
-  const doctorEmail = "emily.carter@medilink.com"; // Placeholder
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [doctorData, setDoctorData] = useState<DocumentData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
+      if (userAuth) {
+        setCurrentUser(userAuth);
+        try {
+          const doctorDocRef = doc(db, "doctors", userAuth.uid);
+          const doctorDocSnap = await getDoc(doctorDocRef);
+          if (doctorDocSnap.exists()) {
+            setDoctorData(doctorDocSnap.data());
+          } else {
+            // Handle case where doctor document might not exist or role is incorrect
+            console.warn("Doctor document not found for UID:", userAuth.uid);
+            // Potentially redirect if role mismatch is critical
+            // router.push('/auth/doctor-login'); 
+            // return;
+          }
+        } catch (error) {
+          console.error("Error fetching doctor data:", error);
+          // Handle error, maybe redirect or show error message
+        }
+        setIsLoading(false);
+      } else {
+        setCurrentUser(null);
+        setDoctorData(null);
+        setIsLoading(false);
+        router.push('/auth/doctor-login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    // This case should be handled by the redirect in useEffect,
+    // but as a fallback, we can return null or a redirecting message.
+    return null; 
+  }
+
+  const doctorName = doctorData?.fullName || currentUser.email || "Doctor";
+  const doctorEmail = currentUser.email || "doctor@example.com";
 
   return (
     <SidebarProvider defaultOpen={true}>

@@ -1,13 +1,68 @@
+
+"use client";
+
 import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { doc, getDoc, type DocumentData } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger, SidebarFooter } from '@/components/ui/sidebar';
 import { AppLogo } from '@/components/layout/app-logo';
 import { UserNav } from '@/components/layout/user-nav';
-import { LayoutDashboard, UserCog, CalendarPlus, ClipboardList, Settings } from 'lucide-react';
+import { LayoutDashboard, UserCog, CalendarPlus, ClipboardList, Settings, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PatientLayout({ children }: { children: ReactNode }) {
-  const patientName = "Alice Wonderland"; // Placeholder
-  const patientEmail = "alice.w@example.com"; // Placeholder
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [patientData, setPatientData] = useState<DocumentData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
+      if (userAuth) {
+        setCurrentUser(userAuth);
+        try {
+          const patientDocRef = doc(db, "patients", userAuth.uid);
+          const patientDocSnap = await getDoc(patientDocRef);
+          if (patientDocSnap.exists()) {
+            setPatientData(patientDocSnap.data());
+          } else {
+             console.warn("Patient document not found for UID:", userAuth.uid);
+            // Potentially redirect if role mismatch is critical
+            // router.push('/auth/patient-login');
+            // return;
+          }
+        } catch (error) {
+          console.error("Error fetching patient data:", error);
+        }
+        setIsLoading(false);
+      } else {
+        setCurrentUser(null);
+        setPatientData(null);
+        setIsLoading(false);
+        router.push('/auth/patient-login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const patientName = patientData?.fullName || currentUser.email || "Patient";
+  const patientEmail = currentUser.email || "patient@example.com";
 
   return (
     <SidebarProvider defaultOpen={true}>
