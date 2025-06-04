@@ -80,19 +80,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Call to Action Section */}
-        <section className="py-16 md:py-24 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6">Ready to Get Started?</h2>
-            <p className="text-lg md:text-xl opacity-90 mb-10 max-w-xl mx-auto">
-              Join Hygienea today and experience a new era of healthcare management.
-            </p>
-            <Button size="lg" variant="secondary" asChild className="bg-background text-primary hover:bg-background/90">
-              <Link href="/auth/patient-register">Register Now</Link>
-            </Button>
-          </div>
-        </section>
-
         {/* Newsletter Section */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
@@ -118,6 +105,20 @@ export default function HomePage() {
             </form>
           </div>
         </section>
+
+        {/* Call to Action Section */}
+        <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6">Ready to Get Started?</h2>
+            <p className="text-lg md:text-xl opacity-90 mb-10 max-w-xl mx-auto">
+              Join Hygienea today and experience a new era of healthcare management.
+            </p>
+            <Button size="lg" variant="secondary" asChild className="bg-background text-primary hover:bg-background/90">
+              <Link href="/auth/patient-register">Register Now</Link>
+            </Button>
+          </div>
+        </section>
+
       </main>
       <Footer />
     </div>
