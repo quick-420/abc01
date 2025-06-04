@@ -4,6 +4,8 @@
 import type { CSSProperties } from 'react';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface Slide {
   id: number;
@@ -32,17 +34,16 @@ export function HeroSlideshow() {
     return () => clearInterval(intervalId);
   }, []);
 
-  // CSS styles for the sliding strip and individual slides
   const stripStyle: CSSProperties = {
-    transform: `translateY(-${currentIndex * (100 / slidesData.length)}%)`, // Each step is 1/Nth of strip height
+    transform: `translateY(-${currentIndex * (100 / slidesData.length)}%)`,
     transitionProperty: 'transform',
     transitionTimingFunction: 'ease-in-out',
     transitionDuration: TRANSITION_DURATION,
-    height: `${slidesData.length * 100}%`, // The strip is N times the height of the viewport
+    height: `${slidesData.length * 100}%`,
   };
 
   const slideStyle: CSSProperties = {
-    height: `${100 / slidesData.length}%`, // Each slide is 1/N of the strip's total height, effectively making it viewport height
+    height: `${100 / slidesData.length}%`,
   };
 
   return (
@@ -63,10 +64,27 @@ export function HeroSlideshow() {
               layout="fill"
               objectFit="cover"
               data-ai-hint={slide.hint}
-              priority={index === 0} // Prioritize loading the first image
+              priority={index === 0}
             />
           </div>
         ))}
+      </div>
+      {/* Overlay Content */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 p-4 text-center">
+        <h1 className="text-4xl md:text-6xl font-headline font-bold mb-6 text-white">
+          Welcome to <span className="text-primary">Hygienea</span>
+        </h1>
+        <p className="text-lg md:text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">
+          Bridging the gap between doctors and patients with a seamless, integrated healthcare experience. Manage appointments, access records, and connect with ease.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" asChild variant="default" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Link href="/auth/patient-register">I'm a Patient</Link>
+          </Button>
+          <Button size="lg" asChild variant="outline" className="border-primary-foreground/50 text-primary-foreground bg-white/20 hover:bg-white/30 dark:bg-slate-900/30 dark:hover:bg-slate-900/50">
+            <Link href="/auth/doctor-register">I'm a Doctor</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -37,33 +37,13 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Slideshow Section */}
-        <section className="bg-secondary">
+        {/* Hero Slideshow Section with Overlay Content */}
+        <section>
           <HeroSlideshow />
         </section>
 
-        {/* Welcome and Main Call to Action Section */}
-        <section className="py-16 md:py-20 bg-background">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-headline font-bold mb-6">
-              Welcome to <span className="text-primary">Hygienea</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Bridging the gap between doctors and patients with a seamless, integrated healthcare experience. Manage appointments, access records, and connect with ease.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild variant="default">
-                <Link href="/auth/patient-register">I'm a Patient</Link>
-              </Button>
-              <Button size="lg" asChild variant="outline" className="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800">
-                <Link href="/auth/doctor-register">I'm a Doctor</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
         {/* Features Section */}
-        <section id="features" className="py-16 md:py-24">
+        <section id="features" className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
               Platform <span className="text-primary">Features</span>
@@ -87,7 +67,7 @@ export default function HomePage() {
         </section>
 
         {/* Newsletter Section */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">
