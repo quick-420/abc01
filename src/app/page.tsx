@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { Fab } from "@/components/layout/fab"; // Import the FAB component
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle, User, Stethoscope } from "lucide-react";
-import { Input } from "@/components/ui/input"; // Added Input import
+import { Input } from "@/components/ui/input";
 
 const features = [
   {
@@ -118,9 +119,9 @@ export default function HomePage() {
             </Button>
           </div>
         </section>
-
       </main>
       <Footer />
+      <Fab href="/book-doctors" tooltipText="Book a Doctor" /> {/* Add the FAB here */}
     </div>
   );
 }
