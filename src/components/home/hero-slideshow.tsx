@@ -2,7 +2,7 @@
 "use client";
 
 import type { CSSProperties } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -22,28 +22,57 @@ const slidesData: Slide[] = [
 ];
 
 const SLIDE_INTERVAL = 3000; // 3 seconds
-const TRANSITION_DURATION = "1s"; // Smooth animation duration
+const TRANSITION_DURATION_MS = 1000; // 1 second, matching CSS
 
 export function HeroSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Create an array with the first slide cloned at the end for seamless looping
+  const effectiveSlides = [...slidesData, slidesData[0]];
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % slidesData.length);
+      setCurrentIndex((prevIndex) => prevIndex + 1);
     }, SLIDE_INTERVAL);
-    return () => clearInterval(intervalId);
+
+    return () => {
+      clearInterval(intervalId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
+  useEffect(() => {
+    // This effect handles the loop-back logic
+    if (currentIndex === slidesData.length) { // We've reached the cloned first slide
+      // Wait for the transition to the cloned slide to finish
+      timeoutRef.current = setTimeout(() => {
+        setIsTransitioning(false); // Disable transitions for the silent reset
+        setCurrentIndex(0); // Reset to the actual first slide
+      }, TRANSITION_DURATION_MS);
+    } else if (currentIndex === 0 && !isTransitioning) {
+      // This is immediately after a reset. We need to re-enable transitions.
+      // Forcing a reflow before re-enabling transition can sometimes help ensure it applies correctly.
+      requestAnimationFrame(() => {
+         setIsTransitioning(true);
+      });
+    }
+  }, [currentIndex, slidesData.length]);
+
+
   const stripStyle: CSSProperties = {
-    transform: `translateY(-${currentIndex * (100 / slidesData.length)}%)`,
+    transform: `translateY(-${currentIndex * (100 / effectiveSlides.length)}%)`,
     transitionProperty: 'transform',
     transitionTimingFunction: 'ease-in-out',
-    transitionDuration: TRANSITION_DURATION,
-    height: `${slidesData.length * 100}%`,
+    transitionDuration: isTransitioning ? `${TRANSITION_DURATION_MS}ms` : '0ms',
+    height: `${effectiveSlides.length * 100}%`,
   };
 
   const slideStyle: CSSProperties = {
-    height: `${100 / slidesData.length}%`,
+    height: `${100 / effectiveSlides.length}%`,
   };
 
   return (
@@ -52,9 +81,9 @@ export function HeroSlideshow() {
         className="relative w-full" // This inner div is the sliding strip
         style={stripStyle}
       >
-        {slidesData.map((slide, index) => (
+        {effectiveSlides.map((slide, index) => (
           <div
-            key={slide.id}
+            key={slide.id + (index === slidesData.length ? '-clone' : '')} // Ensure unique key for cloned slide
             className="relative w-full" // Each slide container within the strip
             style={slideStyle}
           >
@@ -64,7 +93,7 @@ export function HeroSlideshow() {
               layout="fill"
               objectFit="cover"
               data-ai-hint={slide.hint}
-              priority={index === 0}
+              priority={index === 0 && currentIndex === 0} // Prioritize only the very first slide when it's visible
             />
           </div>
         ))}
