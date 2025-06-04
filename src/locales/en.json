@@ -25,5 +25,7 @@
   "nav.features": "Features",
   "nav.faq": "FAQ",
   "nav.patient_portal": "Patient Portal",
-  "nav.doctor_portal": "Doctor Portal"
+  "nav.doctor_portal": "Doctor Portal",
+  "faq.title": "Frequently Asked Questions",
+  "faq.description": "Find answers to common questions about MediLink Hub."
 }
