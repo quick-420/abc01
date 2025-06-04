@@ -27,5 +27,17 @@
   "nav.patient_portal": "रोगी पोर्टल",
   "nav.doctor_portal": "चिकित्सक पोर्टल",
   "faq.title": "अक्सर पूछे जाने वाले प्रश्न",
-  "faq.description": "मेडिलिंक हब के बारे में सामान्य प्रश्नों के उत्तर खोजें।"
+  "faq.description": "मेडिलिंक हब के बारे में सामान्य प्रश्नों के उत्तर खोजें।",
+  "faq.q1.question": "How do I register as a patient?",
+  "faq.q1.answer": "To register as a patient, click on the 'I'm a Patient' button on the homepage, or navigate to the Patient Registration page. You'll need to provide your full name, email, date of birth, and create a password.",
+  "faq.q2.question": "How do I register as a doctor?",
+  "faq.q2.answer": "To register as a doctor, click on the 'I'm a Doctor' button on the homepage, or navigate to the Doctor Registration page. You'll need to provide your full name, email, password, specialization, and medical license number.",
+  "faq.q3.question": "How can I book an appointment?",
+  "faq.q3.answer": "Once logged in as a patient, navigate to the 'Book Appointment' section from your dashboard. You can then select a doctor, choose an available date and time, and confirm your booking.",
+  "faq.q4.question": "Can I cancel or reschedule my appointment?",
+  "faq.q4.answer": "Yes, you can manage your appointments from your patient dashboard. There are options to cancel or request a reschedule for upcoming appointments, subject to the clinic's policies.",
+  "faq.q5.question": "How is my medical data protected?",
+  "faq.q5.answer": "We take data privacy and security very seriously. All your personal and medical information is encrypted and stored securely. We comply with relevant data protection regulations to ensure your data is safe.",
+  "faq.q6.question": "I forgot my password. What should I do?",
+  "faq.q6.answer": "On the login page, there is a 'Forgot Password?' link. Click on it and follow the instructions to reset your password. You will typically receive an email with a link to create a new password."
 }
