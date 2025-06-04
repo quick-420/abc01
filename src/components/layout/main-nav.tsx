@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
+import { ThemeToggle } from "./theme-toggle";
 
 export function MainNav() {
   const router = useRouter();
@@ -17,29 +18,35 @@ export function MainNav() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoading(true); // Start loading
       if (user) {
         setCurrentUser(user);
-        // Fetch user role from Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          setUserRole(userDocSnap.data()?.role);
+        // Determine role from appropriate collection
+        const patientDocRef = doc(db, "patients", user.uid);
+        const patientDocSnap = await getDoc(patientDocRef);
+        if (patientDocSnap.exists() && patientDocSnap.data()?.role === 'patient') {
+          setUserRole('patient');
         } else {
-          // Handle case where user doc might not exist or role is missing
-          setUserRole(null); 
+          const doctorDocRef = doc(db, "doctors", user.uid);
+          const doctorDocSnap = await getDoc(doctorDocRef);
+          if (doctorDocSnap.exists() && doctorDocSnap.data()?.role === 'doctor') {
+            setUserRole('doctor');
+          } else {
+            setUserRole(null); // Role unknown or not one of these
+          }
         }
       } else {
         setCurrentUser(null);
         setUserRole(null);
       }
-      setIsLoading(false);
+      setIsLoading(false); // End loading
     });
 
     return () => unsubscribe();
   }, []);
 
   const handlePatientPortalClick = () => {
-    if (isLoading) return; // Prevent navigation while auth state is loading
+    if (isLoading) return;
     if (currentUser && userRole === 'patient') {
       router.push('/patient/dashboard');
     } else {
@@ -48,7 +55,7 @@ export function MainNav() {
   };
 
   const handleDoctorPortalClick = () => {
-    if (isLoading) return; // Prevent navigation while auth state is loading
+    if (isLoading) return;
     if (currentUser && userRole === 'doctor') {
       router.push('/doctor/dashboard');
     } else {
@@ -57,7 +64,7 @@ export function MainNav() {
   };
 
   return (
-    <nav className="flex items-center space-x-2 sm:space-x-4">
+    <nav className="flex items-center space-x-1 sm:space-x-2">
       <Button variant="ghost" asChild>
         <Link href="/#features">Features</Link>
       </Button>
@@ -70,6 +77,7 @@ export function MainNav() {
       <Button variant="ghost" onClick={handleDoctorPortalClick} disabled={isLoading}>
         Doctor Portal
       </Button>
+      <ThemeToggle />
     </nav>
   );
 }
