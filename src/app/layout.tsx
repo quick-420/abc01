@@ -3,6 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/context/theme-provider";
+import { LanguageProvider } from "@/context/language-provider"; // Added
 
 export const metadata: Metadata = {
   title: 'Hygienea',
@@ -27,8 +28,10 @@ export default function RootLayout({
           storageKey="hygienea-theme"
           defaultTheme="system"
         >
-          {children}
-          <Toaster />
+          <LanguageProvider storageKey="hygienea-language" defaultLanguage="en"> {/* Added */}
+            {children}
+            <Toaster />
+          </LanguageProvider> {/* Added */}
         </ThemeProvider>
       </body>
     </html>

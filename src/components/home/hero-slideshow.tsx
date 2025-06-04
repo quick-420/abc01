@@ -14,6 +14,13 @@ interface Slide {
   hint: string;
 }
 
+interface HeroSlideshowProps {
+  title: string;
+  description: string;
+  patientButtonText: string;
+  doctorButtonText: string;
+}
+
 const slidesData: Slide[] = [
   { id: 1, src: 'https://placehold.co/1280x720.png', alt: 'Compassionate doctor listening to a patient', hint: 'doctor patient' },
   { id: 2, src: 'https://placehold.co/1280x720.png', alt: 'Team of surgeons performing a procedure', hint: 'surgeons operation' },
@@ -24,12 +31,11 @@ const slidesData: Slide[] = [
 const SLIDE_INTERVAL = 3000; // 3 seconds
 const TRANSITION_DURATION_MS = 1000; // 1 second, matching CSS
 
-export function HeroSlideshow() {
+export function HeroSlideshow({ title, description, patientButtonText, doctorButtonText }: HeroSlideshowProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Create an array with the first slide cloned at the end for seamless looping
   const effectiveSlides = [...slidesData, slidesData[0]];
 
   useEffect(() => {
@@ -46,21 +52,17 @@ export function HeroSlideshow() {
   }, []);
 
   useEffect(() => {
-    // This effect handles the loop-back logic
-    if (currentIndex === slidesData.length) { // We've reached the cloned first slide
-      // Wait for the transition to the cloned slide to finish
+    if (currentIndex === slidesData.length) { 
       timeoutRef.current = setTimeout(() => {
-        setIsTransitioning(false); // Disable transitions for the silent reset
-        setCurrentIndex(0); // Reset to the actual first slide
+        setIsTransitioning(false); 
+        setCurrentIndex(0); 
       }, TRANSITION_DURATION_MS);
     } else if (currentIndex === 0 && !isTransitioning) {
-      // This is immediately after a reset. We need to re-enable transitions.
-      // Forcing a reflow before re-enabling transition can sometimes help ensure it applies correctly.
       requestAnimationFrame(() => {
          setIsTransitioning(true);
       });
     }
-  }, [currentIndex, slidesData.length]);
+  }, [currentIndex, slidesData.length, isTransitioning]);
 
 
   const stripStyle: CSSProperties = {
@@ -76,15 +78,15 @@ export function HeroSlideshow() {
   };
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-muted"> {/* Viewport */}
+    <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-muted">
       <div
-        className="relative w-full" // This inner div is the sliding strip
+        className="relative w-full"
         style={stripStyle}
       >
         {effectiveSlides.map((slide, index) => (
           <div
-            key={slide.id + (index === slidesData.length ? '-clone' : '')} // Ensure unique key for cloned slide
-            className="relative w-full" // Each slide container within the strip
+            key={slide.id + (index === slidesData.length ? '-clone' : '')} 
+            className="relative w-full"
             style={slideStyle}
           >
             <Image
@@ -93,25 +95,25 @@ export function HeroSlideshow() {
               layout="fill"
               objectFit="cover"
               data-ai-hint={slide.hint}
-              priority={index === 0 && currentIndex === 0} // Prioritize only the very first slide when it's visible
+              priority={index === 0 && currentIndex === 0} 
             />
           </div>
         ))}
       </div>
-      {/* Overlay Content */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 p-4 text-center">
         <h1 className="text-4xl md:text-6xl font-headline font-bold mb-6 text-white">
-          Welcome to <span className="text-primary">Hygienea</span>
+          {title.replace("Hygienea", "")} {/* Remove Hygienea if present, then add span */}
+          <span className="text-primary">Hygienea</span>
         </h1>
         <p className="text-lg md:text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">
-          Bridging the gap between doctors and patients with a seamless, integrated healthcare experience. Manage appointments, access records, and connect with ease.
+          {description}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" asChild variant="default" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            <Link href="/auth/patient-register">I'm a Patient</Link>
+            <Link href="/auth/patient-register">{patientButtonText}</Link>
           </Button>
           <Button size="lg" asChild variant="outline" className="border-primary-foreground/50 text-primary-foreground bg-white/20 hover:bg-white/30 dark:bg-slate-900/30 dark:hover:bg-slate-900/50">
-            <Link href="/auth/doctor-register">I'm a Doctor</Link>
+            <Link href="/auth/doctor-register">{doctorButtonText}</Link>
           </Button>
         </div>
       </div>

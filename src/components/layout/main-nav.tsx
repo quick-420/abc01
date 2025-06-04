@@ -9,6 +9,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageToggle } from "./language-toggle"; // Added
 
 export function MainNav() {
   const router = useRouter();
@@ -78,6 +79,7 @@ export function MainNav() {
         Doctor Portal
       </Button>
       <ThemeToggle />
+      <LanguageToggle /> {/* Added */}
     </nav>
   );
 }
