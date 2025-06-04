@@ -1,9 +1,8 @@
 
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { getDatabase, Database } from 'firebase/database'; // Added
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 // import { getAnalytics, Analytics } from "firebase/analytics"; // Optional: if you need Analytics
 
 const firebaseConfig = {
@@ -14,14 +13,14 @@ const firebaseConfig = {
   messagingSenderId: "681110615190",
   appId: "1:681110615190:web:e4c36b8c67c0907577beb7",
   measurementId: "G-QZXFKJK0H5",
-  databaseURL: "https://hygienea-7ae6f-default-rtdb.firebaseio.com/" // Added Realtime Database URL
+  // databaseURL: "https://hygienea-7ae6f-default-rtdb.firebaseio.com/" // Removed for chat rollback
 };
 
 let app: FirebaseApp;
 let authInstance: Auth; // Renamed to avoid conflict
 let db: Firestore;
 let storage: FirebaseStorage;
-let rtdb: Database; // Added
+// let rtdb: Database; // Removed for chat rollback
 // let analytics: Analytics; // Optional
 
 if (getApps().length === 0) {
@@ -34,7 +33,7 @@ if (getApps().length === 0) {
 authInstance = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
-rtdb = getDatabase(app); // Initialize RTDB
+// rtdb = getDatabase(app); // Removed for chat rollback
 
 // Export auth as authInstance to avoid naming collision if 'auth' is used locally
-export { app, authInstance as auth, db, storage, rtdb, firebaseConfig };
+export { app, authInstance as auth, db, storage, firebaseConfig };

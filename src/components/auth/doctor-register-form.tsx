@@ -74,13 +74,14 @@ export function DoctorRegisterForm() {
         role: "doctor",
       });
       
-      // Store general user info for lookups (e.g., display name, role for chat)
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        email: data.email,
-        displayName: data.fullName, // Crucial for chat
-        role: "doctor", // Crucial for role-based access and chat
-      });
+      // This was primarily for chat, can be removed or kept if other features need a general 'users' collection.
+      // For full rollback of chat, we remove this.
+      // await setDoc(doc(db, "users", user.uid), {
+      //   uid: user.uid,
+      //   email: data.email,
+      //   displayName: data.fullName, 
+      //   role: "doctor", 
+      // });
 
       toast({
         title: "Registration Successful",
