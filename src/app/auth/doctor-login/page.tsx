@@ -6,7 +6,7 @@ export default function DoctorLoginPage() {
   return (
     <AuthFormCard
       title="Doctor Login"
-      description="Access your MediLink Hub doctor dashboard."
+      description="Access your Hygienea doctor dashboard."
       footerContent={
         <>
           Don't have an account?{" "}

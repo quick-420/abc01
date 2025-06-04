@@ -38,7 +38,7 @@ export default function HomePage() {
         <section className="py-20 md:py-32 bg-secondary">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-6xl font-headline font-bold mb-6">
-              Welcome to <span className="text-primary">MediLink Hub</span>
+              Welcome to <span className="text-primary">Hygienea</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
               Bridging the gap between doctors and patients with a seamless, integrated healthcare experience. Manage appointments, access records, and connect with ease.
@@ -83,7 +83,7 @@ export default function HomePage() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6">Ready to Get Started?</h2>
             <p className="text-lg md:text-xl opacity-90 mb-10 max-w-xl mx-auto">
-              Join MediLink Hub today and experience a new era of healthcare management.
+              Join Hygienea today and experience a new era of healthcare management.
             </p>
             <Button size="lg" variant="secondary" asChild className="bg-background text-primary hover:bg-background/90">
               <Link href="/auth/patient-register">Register Now</Link>

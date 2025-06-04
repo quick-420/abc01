@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'MediLink Hub',
+  title: 'Hygienea',
   description: 'Connecting Doctors and Patients Seamlessly',
 };
 

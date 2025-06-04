@@ -6,7 +6,7 @@ export default function PatientRegisterPage() {
   return (
     <AuthFormCard
       title="Patient Registration"
-      description="Join MediLink Hub to manage your health."
+      description="Join Hygienea to manage your health."
       footerContent={
         <>
           Already have an account?{" "}

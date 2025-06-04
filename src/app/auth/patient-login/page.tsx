@@ -6,7 +6,7 @@ export default function PatientLoginPage() {
   return (
     <AuthFormCard
       title="Patient Login"
-      description="Access your MediLink Hub patient portal."
+      description="Access your Hygienea patient portal."
       footerContent={
         <>
           Don't have an account?{" "}

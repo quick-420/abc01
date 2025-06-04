@@ -6,7 +6,7 @@ export default function DoctorRegisterPage() {
   return (
     <AuthFormCard
       title="Doctor Registration"
-      description="Create your MediLink Hub professional profile."
+      description="Create your Hygienea professional profile."
       footerContent={
         <>
           Already have an account?{" "}
