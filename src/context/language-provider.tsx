@@ -33,12 +33,14 @@ interface LanguageProviderState {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string, fallback?: string) => string;
+  isLanguageInitialized: boolean;
 }
 
 const initialState: LanguageProviderState = {
-  language: "en",
+  language: "en", // This will be the effective default on server
   setLanguage: () => null,
   t: (key: string, fallback?: string) => fallback || key,
+  isLanguageInitialized: false, // Server and initial client will be false
 };
 
 const LanguageProviderContext = createContext<LanguageProviderState>(initialState);
@@ -48,20 +50,23 @@ export function LanguageProvider({
   defaultLanguage = "en",
   storageKey = "hygienea-language",
 }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem(storageKey) as Language) || defaultLanguage;
-    }
-    return defaultLanguage;
-  });
+  // Initialize with defaultLanguage. This ensures server and initial client render are consistent.
+  const [language, setLanguageState] = useState<Language>(defaultLanguage);
+  // Flag to indicate that the client-side specific language has been loaded.
+  const [isLanguageInitialized, setIsLanguageInitialized] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client, after the initial render.
     const storedLanguage = localStorage.getItem(storageKey) as Language | null;
     if (storedLanguage && LANGUAGES.find(l => l.code === storedLanguage)) {
       setLanguageState(storedLanguage);
     } else {
+      // If no stored language, or it's invalid, ensure it's set to defaultLanguage.
+      // This is mostly redundant if useState already initialized to defaultLanguage,
+      // but good for explicitness.
       setLanguageState(defaultLanguage);
     }
+    setIsLanguageInitialized(true); // Mark that client-side language setup is done.
   }, [storageKey, defaultLanguage]);
 
   const setLanguage = useCallback((newLanguage: Language) => {
@@ -72,14 +77,18 @@ export function LanguageProvider({
   }, [storageKey]);
 
   const t = useCallback((key: string, fallback?: string): string => {
-    const currentTranslations = allTranslations[language] || allTranslations.en;
+    // Use `defaultLanguage` if client-side language hasn't been initialized yet.
+    // Otherwise, use the current `language` state.
+    const langToUse = isLanguageInitialized ? language : defaultLanguage;
+    const currentTranslations = allTranslations[langToUse] || allTranslations.en; // Fallback to 'en' just in case
     return currentTranslations[key] || fallback || key;
-  }, [language]);
+  }, [language, defaultLanguage, isLanguageInitialized]);
 
   const value = {
     language,
     setLanguage,
     t,
+    isLanguageInitialized,
   };
 
   return (
