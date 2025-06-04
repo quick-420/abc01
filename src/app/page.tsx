@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { Fab } from "@/components/layout/fab"; // Import the FAB component
+import { Fab } from "@/components/layout/fab";
 import Link from "next/link";
-import Image from "next/image";
 import { CheckCircle, User, Stethoscope } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { HeroSlideshow } from "@/components/home/hero-slideshow";
 
 const features = [
   {
@@ -37,8 +37,13 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="py-20 md:py-32 bg-secondary">
+        {/* Hero Slideshow Section */}
+        <section className="bg-secondary">
+          <HeroSlideshow />
+        </section>
+
+        {/* Welcome and Main Call to Action Section */}
+        <section className="py-16 md:py-20 bg-background">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-6xl font-headline font-bold mb-6">
               Welcome to <span className="text-primary">Hygienea</span>
@@ -46,11 +51,11 @@ export default function HomePage() {
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
               Bridging the gap between doctors and patients with a seamless, integrated healthcare experience. Manage appointments, access records, and connect with ease.
             </p>
-            <div className="space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild variant="default">
                 <Link href="/auth/patient-register">I'm a Patient</Link>
               </Button>
-              <Button size="lg" asChild variant="outline">
+              <Button size="lg" asChild variant="outline" className="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800">
                 <Link href="/auth/doctor-register">I'm a Doctor</Link>
               </Button>
             </div>
@@ -121,7 +126,7 @@ export default function HomePage() {
         </section>
       </main>
       <Footer />
-      <Fab href="/book-doctors" tooltipText="Book a Doctor" /> {/* Add the FAB here */}
+      <Fab href="/book-doctors" tooltipText="Book a Doctor" />
     </div>
   );
 }
