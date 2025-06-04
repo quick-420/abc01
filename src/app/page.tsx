@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
@@ -5,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle, User, Stethoscope } from "lucide-react";
+import { Input } from "@/components/ui/input"; // Added Input import
 
 const features = [
   {
@@ -88,6 +90,32 @@ export default function HomePage() {
             <Button size="lg" variant="secondary" asChild className="bg-background text-primary hover:bg-background/90">
               <Link href="/auth/patient-register">Register Now</Link>
             </Button>
+          </div>
+        </section>
+
+        {/* Newsletter Section */}
+        <section className="py-16 md:py-24 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">
+                Join Our <span className="text-primary">Newsletter</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Stay informed about our latest special offers, upcoming health check-up camps, blood donation drives, and other important community health news from Hygienea.
+              </p>
+            </div>
+            <form className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4 items-center">
+              <Input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-grow w-full sm:w-auto"
+                aria-label="Email for newsletter"
+                required
+              />
+              <Button type="submit" variant="default" size="lg" className="w-full sm:w-auto">
+                Subscribe
+              </Button>
+            </form>
           </div>
         </section>
       </main>
