@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +22,9 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 const patientRegisterFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -51,15 +55,45 @@ export function PatientRegisterForm() {
     },
   });
 
-  function onSubmit(data: PatientRegisterFormValues) {
-    console.log(data);
-    toast({
-      title: "Registration Successful",
-      description: "Your patient profile has been created. Redirecting to login...",
-    });
-    setTimeout(() => {
+  async function onSubmit(data: PatientRegisterFormValues) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "patients", user.uid), {
+        uid: user.uid,
+        email: data.email,
+        fullName: data.fullName,
+        dateOfBirth: Timestamp.fromDate(data.dateOfBirth), // Store as Firestore Timestamp
+        medicalHistory: data.medicalHistory || "",
+        role: "patient", // Add role
+      });
+      
+      // Optionally, you can also store a general user record
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: data.email,
+        displayName: data.fullName,
+        role: "patient",
+      });
+
+      toast({
+        title: "Registration Successful",
+        description: "Your patient profile has been created. Redirecting to login...",
+      });
       router.push(`/auth/patient-login`);
-    }, 1500);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "This email is already registered. Please use a different email or log in.";
+      }
+      toast({
+        title: "Registration Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -171,8 +205,8 @@ export function PatientRegisterForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" variant="default">
-          Register as Patient
+        <Button type="submit" className="w-full" variant="default" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Registering..." : "Register as Patient"}
         </Button>
       </form>
     </Form>

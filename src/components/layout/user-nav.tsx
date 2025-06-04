@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +15,10 @@ import {
 import { LogOut, Settings, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+
 
 interface UserNavProps {
   userType: 'doctor' | 'patient';
@@ -23,14 +28,28 @@ interface UserNavProps {
 
 export function UserNav({ userType, userName = "User", userEmail = "user@example.com" }: UserNavProps) {
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLogout = () => {
-    // Placeholder for actual logout logic
-    router.push("/"); 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push("/"); 
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   const profileLink = `/${userType}/profile`;
-  const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+  const initials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
 
   return (
     <DropdownMenu>

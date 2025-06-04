@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation"; // Corrected import
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -39,17 +42,26 @@ export function LoginForm({ userType }: LoginFormProps) {
     },
   });
 
-  function onSubmit(data: LoginFormValues) {
-    // Placeholder for actual login logic
-    console.log(data);
-    toast({
-      title: "Login Successful",
-      description: `Welcome back! Redirecting to ${userType} dashboard...`,
-    });
-    // Simulate API call and redirect
-    setTimeout(() => {
+  async function onSubmit(data: LoginFormValues) {
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      toast({
+        title: "Login Successful",
+        description: `Welcome back! Redirecting to ${userType} dashboard...`,
+      });
       router.push(`/${userType}/dashboard`);
-    }, 1500);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+        errorMessage = "Invalid email or password. Please try again.";
+      }
+      toast({
+        title: "Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -81,8 +93,8 @@ export function LoginForm({ userType }: LoginFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" variant="default">
-          Log In
+        <Button type="submit" className="w-full" variant="default" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Logging In..." : "Log In"}
         </Button>
       </form>
     </Form>
